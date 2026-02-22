@@ -3,6 +3,12 @@ package server
 import (
 	"log/slog"
 	"os"
+	"time"
+
+	"todolist/internal/repository"
+	"todolist/internal/routes"
+	"todolist/internal/service"
+	"todolist/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -37,6 +43,19 @@ func main() {
 		slog.Error("PORT environment variable not set")
 		os.Exit(1)
 	}
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		slog.Error("JWT_SECRET environment variable not set")
+		os.Exit(1)
+	}
+
+	jwtManager := utils.NewJWTManager(jwtSecret, time.Hour*24*7)
+	userRepo := repository.NewUsersRepository(db)
+	userService := service.NewUserService(userRepo, jwtManager)
+	userRouter := routes.NewUserHandler(userService)
+
+	r.POST("/register", userRouter.Register)
 
 	slog.Info("Starting server", "port", port)
 	err = r.Run(":" + port)
