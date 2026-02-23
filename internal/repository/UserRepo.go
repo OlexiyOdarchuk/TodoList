@@ -16,36 +16,63 @@ func NewUsersRepository(db *sqlx.DB) *UsersRepository {
 }
 
 func (r *UsersRepository) GetByID(id string) (*models.User, error) {
-	//TODO
-	return &models.User{}, nil
+	var u models.User
+	err := r.db.Get(&u, "SELECT * FROM users WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
 }
 
 func (r *UsersRepository) GetByEmail(email string) (*models.User, error) {
-	//TODO
-	return &models.User{}, nil
+	var u models.User
+	err := r.db.Get(&u, "SELECT * FROM users WHERE email = $1", email)
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
 }
 
 func (r *UsersRepository) GetByUsername(username string) (*models.User, error) {
-	//TODO
-	return &models.User{}, nil
+	var u models.User
+	err := r.db.Get(&u, "SELECT * FROM users WHERE username = $1", username)
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
 }
 
 func (r *UsersRepository) Create(u *models.User) error {
-	//TODO
+	_, err := r.db.NamedExec(`INSERT INTO users (id, username, email, password_hash, is_verified, verification_code, verification_code_expires, oauth_provider, oauth_id) VALUES (:id, :username, :email, :password_hash, :is_verified, :verification_code, :verification_code_expires, :oauth_provider, :oauth_id)`, u)
+	if err != nil {
+		return err
+	}
 	return nil
 }
-
 func (r UsersRepository) Update(u *models.User) error {
-	//TODO
-	return nil
+	query := `UPDATE users 
+			SET username = :username, email = :email, pending_email = :pending_email, password_hash = :password_hash, is_verified = :is_verified, verification_code = :verification_code, verification_code_expires = :verification_code_expires
+			WHERE id = :id`
+	_, err := r.db.NamedExec(query, &u)
+	return err
 }
 
 func (r *UsersRepository) Delete(id string) error {
-	//TODO
+	_, err := r.db.NamedExec(`DELETE FROM users WHERE id = :id`, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (r *UsersRepository) GetByOAuth(provider, oauthID string) (*models.User, error) {
-	//TODO
-	return &models.User{}, nil
+	query := `
+	SELECT * FROM users WHERE oauth_id = $1 AND provider = $2
+	`
+	var user models.User
+	err := r.db.Get(&user, query, oauthID, provider)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

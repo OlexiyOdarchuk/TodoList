@@ -53,10 +53,12 @@ func main() {
 	jwtManager := utils.NewJWTManager(jwtSecret, time.Hour*24*7)
 	userRepo := repository.NewUsersRepository(db)
 	userService := service.NewUserService(userRepo, jwtManager)
-	userRouter := routes.NewUserHandler(userService)
+	userHandler := routes.NewUserHandler(userService)
 
-	r.POST("/register", userRouter.Register)
-
+	r.POST("/register", userHandler.Register)
+	r.POST("/login", userHandler.Login)
+	r.POST("/google", userHandler.GoogleLogin)
+	r.POST("/verify", userHandler.VerifyEmail)
 	slog.Info("Starting server", "port", port)
 	err = r.Run(":" + port)
 	if err != nil {
