@@ -8,6 +8,7 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *TodoHandler, jwtManager *utils.JWTManager) {
+	router.Use(LoggerMiddleware())
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
