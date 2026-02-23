@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"todolist/internal/database"
 	"todolist/internal/repository"
 	"todolist/internal/routes"
 	"todolist/internal/service"
@@ -37,12 +38,14 @@ func main() {
 	}
 	defer db.Close()
 
-	r := gin.Default()
-	port := os.Getenv("PORT")
-	if port == "" {
-		slog.Error("PORT environment variable not set")
+	err = database.RunMigrations(db.DB)
+	if err != nil {
+		slog.Error("Database migration failed", "error", err)
 		os.Exit(1)
 	}
+
+	userRepo := repository.NewUsersRepository(db)
+	todoRepo := repository.NewTodoRepository(db)
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
@@ -51,14 +54,21 @@ func main() {
 	}
 
 	jwtManager := utils.NewJWTManager(jwtSecret, time.Hour*24*7)
-	userRepo := repository.NewUsersRepository(db)
-	userService := service.NewUserService(userRepo, jwtManager)
-	userHandler := routes.NewUserHandler(userService)
 
-	r.POST("/register", userHandler.Register)
-	r.POST("/login", userHandler.Login)
-	r.POST("/google", userHandler.GoogleLogin)
-	r.POST("/verify", userHandler.VerifyEmail)
+	userService := service.NewUserService(userRepo, jwtManager)
+	todoService := service.NewTodoService(todoRepo)
+
+	userHandler := routes.NewUserHandler(userService)
+	todoHandler := routes.NewTodoHandler(todoService)
+
+	r := gin.Default()
+	routes.SetupRoutes(r, userHandler, todoHandler, jwtManager)
+	port := os.Getenv("PORT")
+	if port == "" {
+		slog.Error("PORT environment variable not set")
+		os.Exit(1)
+	}
+
 	slog.Info("Starting server", "port", port)
 	err = r.Run(":" + port)
 	if err != nil {
