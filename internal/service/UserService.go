@@ -17,7 +17,7 @@ type UserRepository interface {
 	GetByEmail(email string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 	GetByOAuth(provider, oauthID string) (*models.User, error)
-	Create(u *models.User) error
+	CreateWithDefaultTodo(u *models.User, todo *models.Todo) error
 	Update(u *models.User) error
 	Delete(id string) error
 }
@@ -57,7 +57,18 @@ func (s *UserService) RegisterUser(username, email, password string) (*LoginResp
 		VerificationCodeExpires: expires,
 	}
 
-	err = s.repo.Create(user)
+	defaultTodo := &models.Todo{
+		Id:          uuid.New().String(),
+		UserID:      user.Id,
+		Title:       "Welcome to ToDoList!",
+		Description: "This is your first task. Explore the app and get things done!",
+		Completed:   false,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		Deadline:    time.Now().Add(24 * time.Hour),
+	}
+
+	err = s.repo.CreateWithDefaultTodo(user, defaultTodo)
 	if err != nil {
 		if strings.Contains(err.Error(), "unique constraint") {
 			return nil, errors.New("username or email already exists")
@@ -68,6 +79,39 @@ func (s *UserService) RegisterUser(username, email, password string) (*LoginResp
 	go utils.SendVerificationEmail(user.Email, code)
 
 	return &LoginResponse{Message: "User registered successfully. Check email for verification", Token: ""}, nil
+}
+
+func (s *UserService) LoginUser(userdata, password string) (*LoginResponse, error) {
+	user := &models.User{}
+	var err error
+
+	hasAt := strings.Contains(userdata, "@")
+	if hasAt {
+		user, err = s.repo.GetByEmail(userdata)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		user, err = s.repo.GetByUsername(userdata)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	if !user.IsVerified {
+		return nil, errors.New("user is not verified")
+	}
+
+	token, err := s.jwtManager.Generate(user.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &LoginResponse{User: user, Token: token}, nil
 }
 
 func (s *UserService) VerifyEmail(email, code string) (*LoginResponse, error) {
@@ -107,39 +151,6 @@ func (s *UserService) VerifyEmail(email, code string) (*LoginResponse, error) {
 	}, nil
 }
 
-func (s *UserService) LoginUser(userdata, password string) (*LoginResponse, error) {
-	user := &models.User{}
-	var err error
-
-	hasAt := strings.Contains(userdata, "@")
-	if hasAt {
-		user, err = s.repo.GetByEmail(userdata)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		user, err = s.repo.GetByUsername(userdata)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
-	if err != nil {
-		return nil, errors.New("invalid credentials")
-	}
-
-	if !user.IsVerified {
-		return nil, errors.New("user is not verified")
-	}
-
-	token, err := s.jwtManager.Generate(user.Id)
-	if err != nil {
-		return nil, err
-	}
-	return &LoginResponse{User: user, Token: token}, nil
-}
-
 func (s *UserService) LoginWithOAuth(ctx context.Context, data models.OAuthUser) (*LoginResponse, error) {
 	user, err := s.repo.GetByOAuth(data.Provider, data.ID)
 	if err != nil {
@@ -154,7 +165,17 @@ func (s *UserService) LoginWithOAuth(ctx context.Context, data models.OAuthUser)
 				OauthId:       data.ID,
 				IsVerified:    true,
 			}
-			err = s.repo.Create(user)
+			defaultTodo := &models.Todo{
+				Id:          uuid.New().String(),
+				UserID:      user.Id,
+				Title:       "Welcome to ToDoList!",
+				Description: "This is your first task. Explore the app and get things done!",
+				Completed:   false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+				Deadline:    time.Now().Add(24 * time.Hour),
+			}
+			err = s.repo.CreateWithDefaultTodo(user, defaultTodo)
 			if err != nil {
 				if strings.Contains(err.Error(), "unique constraint") {
 					return nil, errors.New("username or email already exists")
@@ -178,4 +199,91 @@ func (s *UserService) LoginWithOAuth(ctx context.Context, data models.OAuthUser)
 	}
 	token, _ := s.jwtManager.Generate(user.Id)
 	return &LoginResponse{User: user, Token: token}, nil
+}
+
+func (s *UserService) UpdateUsername(userId, newUsername string) error {
+	user, err := s.repo.GetByID(userId)
+	if err != nil {
+		return errors.New("invalid user")
+	}
+	user.Username = newUsername
+	return s.repo.Update(user)
+}
+
+func (s *UserService) UpdatePassword(userId, oldPassword, newPassword string) error {
+	user, err := s.repo.GetByID(userId)
+	if err != nil {
+		return errors.New("invalid user")
+	}
+
+	if user.PasswordHash != "" {
+		err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword))
+		if err != nil {
+			return errors.New("invalid old password")
+		}
+	} else if user.OauthProvider == "" {
+		return errors.New("cannot set password without old password for non-oauth users")
+	}
+
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), 10)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = string(newPasswordHash)
+	return s.repo.Update(user)
+}
+
+func (s *UserService) RequestEmailUpdate(userId, newEmail string) error {
+	user, err := s.repo.GetByID(userId)
+	if err != nil {
+		return errors.New("invalid user")
+	}
+
+	code, err := utils.GenerateVerificationCode()
+	if err != nil {
+		return err
+	}
+	expires := time.Now().Add(10 * time.Minute)
+
+	user.PendingEmail = newEmail
+	user.VerificationCode = code
+	user.VerificationCodeExpires = expires
+
+	err = s.repo.Update(user)
+	if err != nil {
+		return err
+	}
+
+	go utils.SendVerificationEmail(newEmail, code)
+	return nil
+}
+
+func (s *UserService) VerifyEmailUpdate(userId, code string) error {
+	user, err := s.repo.GetByID(userId)
+	if err != nil {
+		return errors.New("invalid user")
+	}
+
+	if user.PendingEmail == "" {
+		return errors.New("no pending email update")
+	}
+
+	if user.VerificationCode != code {
+		return errors.New("invalid verification code")
+	}
+
+	if time.Now().After(user.VerificationCodeExpires) {
+		return errors.New("verification code expired")
+	}
+
+	user.Email = user.PendingEmail
+	user.PendingEmail = ""
+	user.VerificationCode = ""
+	user.VerificationCodeExpires = time.Time{}
+
+	return s.repo.Update(user)
+}
+
+func (s *UserService) GetUserByID(userId string) (*models.User, error) {
+	return s.repo.GetByID(userId)
 }

@@ -30,6 +30,12 @@ func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *Todo
 		protected.PUT("/todos/:id", todoHandler.Update)
 		protected.GET("/todos", todoHandler.GetAll)
 		protected.DELETE("/todos/:id", todoHandler.Delete)
+
+		protected.GET("/user/me", userHandler.GetUser)
+		protected.PATCH("/user/me", userHandler.UpdateUsername)
+		protected.PUT("/user/me/password", userHandler.UpdatePassword)
+		protected.POST("/user/me/email", userHandler.RequestEmailUpdate)
+		protected.PUT("/user/me/email", userHandler.VerifyEmailUpdate)
 	}
 	router.NoRoute(func(c *gin.Context) {
 		c.File("./frontend/dist/index.html")

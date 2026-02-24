@@ -61,8 +61,12 @@ func main() {
 	userHandler := routes.NewUserHandler(userService)
 	todoHandler := routes.NewTodoHandler(todoService)
 
-	r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	r := gin.New()
+	r.Use(gin.Recovery())
+
 	routes.SetupRoutes(r, userHandler, todoHandler, jwtManager)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		slog.Error("PORT environment variable not set")

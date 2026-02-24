@@ -42,13 +42,39 @@ func (r *UsersRepository) GetByUsername(username string) (*models.User, error) {
 	return &u, nil
 }
 
-func (r *UsersRepository) Create(u *models.User) error {
-	_, err := r.db.NamedExec(`INSERT INTO users (id, username, email, password_hash, is_verified, verification_code, verification_code_expires, oauth_provider, oauth_id) VALUES (:id, :username, :email, :password_hash, :is_verified, :verification_code, :verification_code_expires, :oauth_provider, :oauth_id)`, u)
+func (r *UsersRepository) CreateWithDefaultTodo(u *models.User, todo *models.Todo) error {
+	tx, err := r.db.Beginx()
 	if err != nil {
 		return err
 	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	_, err = tx.NamedExec(`INSERT INTO users (id, username, email, password_hash, is_verified, verification_code, verification_code_expires, oauth_provider, oauth_id) VALUES (:id, :username, :email, :password_hash, :is_verified, :verification_code, :verification_code_expires, :oauth_provider, :oauth_id)`, u)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.NamedExec(`
+		INSERT INTO todos (id, user_id, title, description, completed, created_at, updated_at, deadline)
+		VALUES (:id, :user_id, :title, :description, :completed, :created_at, :updated_at, :deadline)
+	`, todo)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
+
 func (r UsersRepository) Update(u *models.User) error {
 	query := `UPDATE users 
 			SET username = :username, email = :email, pending_email = :pending_email, password_hash = :password_hash, is_verified = :is_verified, verification_code = :verification_code, verification_code_expires = :verification_code_expires
