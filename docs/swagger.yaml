@@ -1,0 +1,640 @@
+basePath: /
+definitions:
+  models.Todo:
+    properties:
+      completed:
+        type: boolean
+      created_at:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      is_verified:
+        type: boolean
+      oauth_id:
+        type: string
+      oauth_provider:
+        type: string
+      pending_email:
+        type: string
+      username:
+        type: string
+    type: object
+  routes.CreateTodoInput:
+    properties:
+      deadline:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  routes.DeleteUserInput:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  routes.ErrorResponse:
+    properties:
+      err:
+        type: string
+    required:
+    - err
+    type: object
+  routes.GoogleLoginInput:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  routes.LoginInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  routes.RegisterInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  routes.RequestEmailUpdateInput:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  routes.SuccessResponce:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  routes.UpdatePasswordInput:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  routes.UpdateUsernameInput:
+    properties:
+      username:
+        minLength: 3
+        type: string
+    required:
+    - username
+    type: object
+  routes.UserProfileResponse:
+    properties:
+      email:
+        type: string
+      has_password:
+        type: boolean
+      id:
+        type: string
+      oauth_provider:
+        type: string
+      pending_email:
+        type: string
+      username:
+        type: string
+    type: object
+  routes.VerifyEmailInput:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  routes.VerifyEmailRegisterInput:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
+  service.LoginResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: shawyhaf@gmail.com
+    name: iShawyha
+    url: https://github.com/OlexiyOdarchuk
+  description: This is a sample ToDoList server.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: ToDoList API
+  version: "1.0"
+paths:
+  /api/todos:
+    get:
+      consumes:
+      - application/json
+      description: Get all todos for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Todo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all todos
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Create a new todo for the authenticated user
+      parameters:
+      - description: Todo payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateTodoInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new todo
+      tags:
+      - todos
+  /api/todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a todo by ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a todo
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Update an existing todo
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Todo object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Todo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a todo
+      tags:
+      - todos
+  /api/user/me:
+    delete:
+      consumes:
+      - application/json
+      description: Sends verification code to current email before account deletion
+      parameters:
+      - description: Delete user payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.DeleteUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Request user deletion
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Returns profile of authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get current user
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: Updates username for authenticated user
+      parameters:
+      - description: New username
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateUsernameInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update username
+      tags:
+      - users
+  /api/user/me/delete:
+    put:
+      consumes:
+      - application/json
+      description: Deletes authenticated user after verification code confirmation
+      parameters:
+      - description: Delete verification code
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.VerifyEmailInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Confirm user deletion
+      tags:
+      - users
+  /api/user/me/email:
+    post:
+      consumes:
+      - application/json
+      description: Sends verification code to new email for authenticated user
+      parameters:
+      - description: New email payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.RequestEmailUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Request email update
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Confirms code and updates email for authenticated user
+      parameters:
+      - description: Email verification code
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.VerifyEmailInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Verify email update
+      tags:
+      - users
+  /api/user/me/password:
+    put:
+      consumes:
+      - application/json
+      description: Updates password for authenticated user
+      parameters:
+      - description: Password update payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdatePasswordInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.SuccessResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update password
+      tags:
+      - users
+  /auth/google:
+    post:
+      consumes:
+      - application/json
+      description: Validates Google ID token and logs in or creates user
+      parameters:
+      - description: Google login payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.GoogleLoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      summary: Login with Google
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login by username/email and password
+      parameters:
+      - description: Login payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a local user and sends email verification code
+      parameters:
+      - description: Registration payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/service.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      summary: Register user
+      tags:
+      - auth
+  /auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies code from register flow and returns auth token
+      parameters:
+      - description: Email verification payload
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/routes.VerifyEmailRegisterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/routes.ErrorResponse'
+      summary: Verify registration email
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

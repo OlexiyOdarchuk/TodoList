@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"log/slog"
@@ -14,7 +14,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
+
+// @title ToDoList API
+// @version 1.0
+// @description This is a sample ToDoList server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name iShawyha
+// @contact.url https://github.com/OlexiyOdarchuk
+// @contact.email shawyhaf@gmail.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))

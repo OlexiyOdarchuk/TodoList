@@ -1,10 +1,13 @@
 package routes
 
 import (
+	_ "todolist/docs"
 	"todolist/internal/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *TodoHandler, jwtManager *utils.JWTManager) {
@@ -14,6 +17,8 @@ func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *Todo
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	router.Use(cors.New(corsConfig))
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := router.Group("/auth")
 
@@ -33,6 +38,7 @@ func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *Todo
 
 		protected.GET("/user/me", userHandler.GetUser)
 		protected.DELETE("/user/me", userHandler.DeleteUser)
+		protected.PUT("/user/me/delete", userHandler.VerifyEmailDelete)
 		protected.PATCH("/user/me", userHandler.UpdateUsername)
 		protected.PUT("/user/me/password", userHandler.UpdatePassword)
 		protected.POST("/user/me/email", userHandler.RequestEmailUpdate)
