@@ -287,3 +287,43 @@ func (s *UserService) VerifyEmailUpdate(userId, code string) error {
 func (s *UserService) GetUserByID(userId string) (*models.User, error) {
 	return s.repo.GetByID(userId)
 }
+
+func (s *UserService) DeleteUser(userId, password string) error {
+	user, err := s.repo.GetByID(userId)
+	if err != nil {
+		return errors.New("invalid user")
+	}
+
+	code, err := utils.GenerateVerificationCode()
+	if err != nil {
+		return err
+	}
+	expires := time.Now().Add(10 * time.Minute)
+
+	user.VerificationCode = code
+	user.VerificationCodeExpires = expires
+
+	go utils.SendVerificationEmail(user.Email, code)
+	return nil
+}
+
+func (s *UserService) VerifyEmailDelete(userId, code string) error {
+	user, err := s.repo.GetByID(userId)
+	if err != nil {
+		return errors.New("invalid user")
+	}
+
+	if user.PendingEmail == "" {
+		return errors.New("no pending email update")
+	}
+
+	if user.VerificationCode != code {
+		return errors.New("invalid verification code")
+	}
+
+	if time.Now().After(user.VerificationCodeExpires) {
+		return errors.New("verification code expired")
+	}
+
+	return s.repo.Delete(userId)
+}

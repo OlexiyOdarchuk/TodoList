@@ -32,6 +32,7 @@ func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *Todo
 		protected.DELETE("/todos/:id", todoHandler.Delete)
 
 		protected.GET("/user/me", userHandler.GetUser)
+		protected.DELETE("/user/me", userHandler.DeleteUser)
 		protected.PATCH("/user/me", userHandler.UpdateUsername)
 		protected.PUT("/user/me/password", userHandler.UpdatePassword)
 		protected.POST("/user/me/email", userHandler.RequestEmailUpdate)

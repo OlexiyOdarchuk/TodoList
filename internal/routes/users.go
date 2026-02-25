@@ -31,7 +31,7 @@ type GoogleLoginInput struct {
 	Token string `json:"token" binding:"required"`
 }
 
-type VerifyEmailInput struct {
+type VerifyEmailRegisterInput struct {
 	Email string `json:"email" binding:"required,email"`
 	Code  string `json:"code" binding:"required,len=6"`
 }
@@ -49,8 +49,12 @@ type RequestEmailUpdateInput struct {
 	Email string `json:"email" binding:"required,email"`
 }
 
-type VerifyEmailUpdateInput struct {
+type VerifyEmailInput struct {
 	Code string `json:"code" binding:"required,len=6"`
+}
+
+type DeleteUserInput struct {
+	Password string `json:"password" binding:"required"`
 }
 
 func (uh *UserHandler) Register(c *gin.Context) {
@@ -82,7 +86,7 @@ func (uh *UserHandler) Login(c *gin.Context) {
 }
 
 func (uh *UserHandler) VerifyEmail(c *gin.Context) {
-	var input VerifyEmailInput
+	var input VerifyEmailRegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -179,7 +183,7 @@ func (uh *UserHandler) RequestEmailUpdate(c *gin.Context) {
 }
 
 func (uh *UserHandler) VerifyEmailUpdate(c *gin.Context) {
-	var input VerifyEmailUpdateInput
+	var input VerifyEmailInput
 	userId := c.MustGet("user").(string)
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -191,4 +195,34 @@ func (uh *UserHandler) VerifyEmailUpdate(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Email updated successfully"})
+}
+
+func (uh *UserHandler) DeleteUser(c *gin.Context) {
+	var input DeleteUserInput
+	userId := c.MustGet("user").(string)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := uh.us.DeleteUser(userId, input.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Verification code sent to new email"})
+}
+
+func (uh *UserHandler) VerifyEmailDelete(c *gin.Context) {
+	var input VerifyEmailInput
+	userId := c.MustGet("user").(string)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := uh.us.VerifyEmailDelete(userId, input.Code)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
