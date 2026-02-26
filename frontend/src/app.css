@@ -1,0 +1,185 @@
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: #0f172a !important;
+    color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .card.bg-white,
+[data-bs-theme="dark"] .bg-white {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+.auth-card {
+    border: none;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    padding: 2.5rem 2rem;
+    color: white;
+    text-align: center;
+}
+
+.todo-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 1rem;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    background-color: #ffffff;
+}
+
+[data-bs-theme="dark"] .todo-card.bg-light,
+[data-bs-theme="dark"] .todo-card .bg-light {
+    background-color: #0f172a !important; 
+}
+
+.todo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+    border-color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .todo-card:hover {
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.5);
+    border-color: #475569;
+}
+
+.btn {
+    border-radius: 0.75rem;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    transform: translateY(-1px);
+    color: white !important;
+}
+
+[data-bs-theme="dark"] .navbar .btn-light {
+    background-color: transparent;
+    border: 1px solid #475569;
+    color: #e2e8f0 !important;
+}
+[data-bs-theme="dark"] .navbar .btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff !important;
+}
+
+.form-control, .form-select {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    background-color: #fcfdfe;
+    color: #1e293b;
+}
+
+[data-bs-theme="dark"] .form-control, 
+[data-bs-theme="dark"] .form-select, 
+[data-bs-theme="dark"] .input-group-text,
+[data-bs-theme="dark"] .form-control.bg-light,
+[data-bs-theme="dark"] .bg-light {
+    background-color: #0f172a !important; 
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+[data-bs-theme="dark"] .form-control::placeholder {
+    color: #64748b;
+}
+
+[data-bs-theme="dark"], 
+[data-bs-theme="dark"] body, 
+[data-bs-theme="dark"] .text-dark,
+[data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
+[data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6,
+[data-bs-theme="dark"] p,
+[data-bs-theme="dark"] label,
+[data-bs-theme="dark"] span {
+    color: #f1f5f9 !important;
+}
+[data-bs-theme="dark"] .text-muted,
+[data-bs-theme="dark"] .small.text-muted {
+    color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .nav-pills.bg-white {
+    background-color: #1e293b !important;
+}
+[data-bs-theme="dark"] .nav-pills .nav-link:not(.active) {
+    color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: #1e293b !important;
+}
+
+[data-bs-theme="dark"] #googleSignInDiv, 
+[data-bs-theme="dark"] #googleSignUpDiv {
+    background-color: transparent;
+    border-radius: 50px;
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+[data-bs-theme="dark"] .dropdown-item {
+    color: #e2e8f0;
+}
+[data-bs-theme="dark"] .dropdown-item:hover {
+    background-color: #334155;
+}
+
+.form-control:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    outline: none;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    border-radius: 0.75rem;
+}
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+    border-color: #6366f1 !important;
+}
+
+.input-group .form-control:focus {
+    box-shadow: none;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -1px;
+    font-size: 1.5rem;
+}
+
+input[type="datetime-local"], input[type="date"], input[type="time"] {
+    position: relative;
+}
+[data-bs-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-bs-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}

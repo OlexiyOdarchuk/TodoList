@@ -1,0 +1,95 @@
+version: '3'
+
+dotenv: ['.env']
+
+vars:
+  GO_BIN: go
+  DOCKER_COMPOSE: docker compose
+  FRONTEND_DIR: frontend
+  BACKEND_CMD: cmd/server/main.go
+
+tasks:
+  default:
+    desc: Lists available tasks
+    cmds:
+      - task --list-all
+  
+  dev:
+    desc: Runs the entire stack (Database, Backend, Frontend) concurrently
+    deps: [db-up, run-backend, run-frontend]
+
+  run-backend:
+    desc: Starts the Go backend server
+    deps: [db-up]
+    cmds:
+      - '{{.GO_BIN}} run {{.BACKEND_CMD}}'
+
+  run-frontend:
+    desc: Starts the Svelte frontend development server
+    dir: '{{.FRONTEND_DIR}}'
+    cmds:
+      - npm run dev
+
+  db-up:
+    desc: Starts the PostgreSQL database container in the background
+    cmds:
+      - '{{.DOCKER_COMPOSE}} up -d db'
+
+  db-down:
+    desc: Stops and removes the database container
+    cmds:
+      - '{{.DOCKER_COMPOSE}} down'
+
+  build:
+    desc: Rebuilds and starts all services in the background
+    cmds:
+      - '{{.DOCKER_COMPOSE}} up --build -d'
+
+  abs-stop:
+    desc: Stops all services
+    cmds:
+      - '{{.DOCKER_COMPOSE}} down'
+
+  start:
+    desc: Starts all services in the background using Docker
+    cmds:
+      - '{{.DOCKER_COMPOSE}} start'
+
+  stop:
+    desc: Stops all services using Docker
+    cmds:
+      - '{{.DOCKER_COMPOSE}} stop'
+
+  db-shell:
+    desc: Opens an interactive psql shell to the database
+    cmds:
+      - PGPASSWORD={{.DB_PASSWORD}} psql -U {{.DB_USER}} -d {{.DB_NAME}} -h {{.DB_HOST}} -p {{.DB_PORT}}
+
+  db-clear-users:
+    desc: Deletes all users from the database (useful for testing)
+    cmds:
+      - PGPASSWORD={{.DB_PASSWORD}} psql -U {{.DB_USER}} -d {{.DB_NAME}} -h {{.DB_HOST}} -p {{.DB_PORT}} -c "DELETE FROM users;"
+
+  build-backend:
+    desc: Builds the Go backend binary
+    cmds:
+      - '{{.GO_BIN}} build -o bin/server {{.BACKEND_CMD}}'
+
+  build-frontend:
+    desc: Builds the Svelte frontend for production
+    dir: '{{.FRONTEND_DIR}}'
+    cmds:
+      - npm run build
+
+  install:
+    desc: Installs all frontend and backend dependencies
+    cmds:
+      - '{{.GO_BIN}} mod download'
+      - cd {{.FRONTEND_DIR}} && npm install
+
+  clean:
+    desc: Cleans build artifacts
+    cmds:
+      - rm -rf bin/
+      - rm -rf {{.FRONTEND_DIR}}/dist/
+      - rm -rf {{.FRONTEND_DIR}}/node_modules/

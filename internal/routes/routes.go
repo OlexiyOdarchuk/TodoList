@@ -18,6 +18,9 @@ func SetupRoutes(router *gin.Engine, userHandler *UserHandler, todoHandler *Todo
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	router.Use(cors.New(corsConfig))
 
+	router.Static("/assets", "./frontend/dist/assets")
+	router.StaticFile("/icon.svg", "./frontend/dist/icon.svg")
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := router.Group("/auth")
