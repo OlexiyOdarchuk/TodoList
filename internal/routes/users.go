@@ -41,7 +41,7 @@ type UpdateUsernameInput struct {
 }
 
 type UpdatePasswordInput struct {
-	OldPassword string `json:"old_password" binding:"required"`
+	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password" binding:"required,min=8"`
 }
 
@@ -54,7 +54,7 @@ type VerifyEmailInput struct {
 }
 
 type DeleteUserInput struct {
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password"`
 }
 
 type UserProfileResponse struct {

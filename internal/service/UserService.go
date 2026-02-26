@@ -294,6 +294,13 @@ func (s *UserService) DeleteUser(userId, password string) error {
 		return errors.New("invalid user")
 	}
 
+	if user.PasswordHash != "" {
+		err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+		if err != nil {
+			return errors.New("invalid password")
+		}
+	}
+
 	code, err := utils.GenerateVerificationCode()
 	if err != nil {
 		return err
@@ -302,6 +309,10 @@ func (s *UserService) DeleteUser(userId, password string) error {
 
 	user.VerificationCode = code
 	user.VerificationCodeExpires = expires
+
+	if err = s.repo.Update(user); err != nil {
+		return err
+	}
 
 	go utils.SendVerificationEmail(user.Email, code)
 	return nil
@@ -313,8 +324,8 @@ func (s *UserService) VerifyEmailDelete(userId, code string) error {
 		return errors.New("invalid user")
 	}
 
-	if user.PendingEmail == "" {
-		return errors.New("no pending email update")
+	if user.VerificationCode == "" {
+		return errors.New("no pending deletion request")
 	}
 
 	if user.VerificationCode != code {
