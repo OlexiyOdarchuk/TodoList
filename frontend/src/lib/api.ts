@@ -44,10 +44,32 @@ async function request(endpoint: string, options: RequestInit = {}) {
     }
 
     if (!response.ok) {
-        throw new Error(data?.err || data?.error || data?.message || 'API request failed');
+        const rawError = data?.err || data?.error || data?.message || 'API request failed';
+        throw new Error(normalizeErrorMessage(rawError));
     }
 
     return data;
+}
+
+function normalizeErrorMessage(raw: unknown): string {
+    const msg = String(raw ?? '').trim();
+    if (!msg) return 'Request failed. Please try again.';
+
+    const lower = msg.toLowerCase();
+
+    if (lower.includes('users_email_key')) return 'Email is already in use';
+    if (lower.includes('users_username_key')) return 'Username is already in use';
+    if (lower.includes('duplicate key value violates unique constraint') || lower.includes('unique constraint')) {
+        return 'This value is already in use';
+    }
+    if (lower.includes('violates foreign key constraint')) return 'Related record was not found';
+    if (lower.includes('violates not-null constraint')) return 'Required field is missing';
+    if (lower.includes('invalid input syntax')) return 'Invalid input format';
+    if (lower.includes('pq:') || lower.includes('sqlstate') || lower.includes('sql:')) {
+        return 'Database request failed. Please try again';
+    }
+
+    return msg;
 }
 
 export const api = {

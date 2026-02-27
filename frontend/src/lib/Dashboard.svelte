@@ -640,36 +640,40 @@
         }
 
         .mobile-input-group {
-            flex-direction: column;
-            gap: 0.5rem;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: stretch;
         }
 
         .mobile-input-group > .form-control {
-            width: 100%;
-            border-radius: 0.75rem !important;
-            border-left: 1px solid #e2e8f0 !important;
+            min-width: 0;
+            flex: 1 1 auto;
         }
 
         .mobile-input-group > .btn {
-            width: 100%;
-            border-radius: 0.75rem !important;
+            width: auto;
+            white-space: nowrap;
         }
 
         .mobile-inline-form {
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: nowrap;
+        }
+
+        .mobile-inline-form .form-control {
+            min-width: 0;
         }
 
         .mobile-inline-form .btn {
-            width: 100%;
+            width: auto;
+            white-space: nowrap;
         }
 
         .edit-actions {
-            justify-content: stretch !important;
-            flex-direction: column;
-        }
-
-        .edit-actions .btn {
-            width: 100%;
+            justify-content: flex-end !important;
+            flex-direction: row;
+            flex-wrap: wrap;
         }
     }
 </style>
