@@ -57,6 +57,18 @@ function normalizeErrorMessage(raw: unknown): string {
 
     const lower = msg.toLowerCase();
 
+    if (lower.includes("failed on the 'required' tag")) return 'Please fill in all required fields';
+    if (lower.includes("registerinput.password") && lower.includes("failed on the 'min' tag")) {
+        return 'Password must be at least 8 characters';
+    }
+    if (lower.includes("registerinput.username") && lower.includes("failed on the 'min' tag")) {
+        return 'Username must be at least 3 characters';
+    }
+    if (lower.includes("verifyemailregisterinput.code") && lower.includes("failed on the 'len' tag")) {
+        return 'Verification code must be exactly 6 digits';
+    }
+    if (lower.includes("failed on the 'email' tag")) return 'Enter a valid email address';
+
     if (lower.includes('users_email_key')) return 'Email is already in use';
     if (lower.includes('users_username_key')) return 'Username is already in use';
     if (lower.includes('duplicate key value violates unique constraint') || lower.includes('unique constraint')) {

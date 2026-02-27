@@ -609,15 +609,22 @@
 
     @media (max-width: 575.98px) {
         .dashboard-navbar .container {
-            align-items: flex-start;
-            gap: 0.75rem;
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .dashboard-nav-actions {
-            width: 100%;
+            width: auto;
+            margin-left: auto;
             justify-content: flex-end;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
+
+        .dashboard-nav-actions::-webkit-scrollbar { display: none; }
 
         .dashboard-nav-actions .btn {
             padding-left: 0.75rem;
