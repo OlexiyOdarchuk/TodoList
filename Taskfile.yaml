@@ -13,7 +13,7 @@ tasks:
     desc: Lists available tasks
     cmds:
       - task --list-all
-  
+
   dev:
     desc: Runs the entire stack (Database, Backend, Frontend) concurrently
     deps: [db-up, run-backend, run-frontend]
@@ -93,3 +93,7 @@ tasks:
       - rm -rf bin/
       - rm -rf {{.FRONTEND_DIR}}/dist/
       - rm -rf {{.FRONTEND_DIR}}/node_modules/
+
+  env:
+    desc: Create .env files for backend and frontend
+    cmd: cp .env.example .env && cp frontend/.env.example frontend/.env
