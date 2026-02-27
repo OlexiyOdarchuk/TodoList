@@ -41,11 +41,3 @@
         {/if}
     {/if}
 </main>
-
-<style>
-    :global(body) {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background-color: #f8f9fa;
-    }
-</style>

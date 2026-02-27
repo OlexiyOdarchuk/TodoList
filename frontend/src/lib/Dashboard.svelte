@@ -277,13 +277,13 @@
 
 </script>
 
-<nav class="navbar navbar-expand navbar-dark mb-5 shadow-sm" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
+<nav class="navbar navbar-expand navbar-dark mb-4 mb-md-5 shadow-sm dashboard-navbar" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
             <i class="bi bi-check2-all fs-3"></i>
             <span>TaskFlow</span>
         </a>
-        <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="ms-auto d-flex align-items-center gap-2 dashboard-nav-actions">
             <button class="btn btn-link text-white p-0 fs-5 border-0" onclick={toggleTheme} title="Toggle Theme">
                 {#if themeState.isDark}
                     <i class="bi bi-sun-fill"></i>
@@ -304,7 +304,7 @@
     </div>
 </nav>
 
-<div class="container pb-5" style="max-width: 900px;">
+<div class="container pb-4 pb-md-5 dashboard-shell" style="max-width: 900px;">
     {#if error && error !== 'Unauthorized'}
         <div class="alert alert-danger shadow-sm border-0 rounded-4 mb-4" transition:fade>{error}</div>
     {/if}
@@ -350,7 +350,7 @@
 
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
             <h4 class="fw-bold m-0 text-dark">Your Tasks</h4>
-            <div class="nav nav-pills bg-white p-1 rounded-pill shadow-sm">
+            <div class="nav nav-pills bg-white p-1 rounded-pill shadow-sm task-filter">
                 <button type="button" class="nav-link py-1 px-3 rounded-pill {filter === 'all' ? 'active shadow-sm' : 'text-muted'}" onclick={() => filter = 'all'}>All</button>
                 <button type="button" class="nav-link py-1 px-3 rounded-pill {filter === 'pending' ? 'active shadow-sm bg-warning text-dark' : 'text-muted'}" onclick={() => filter = 'pending'}>Pending</button>
                 <button type="button" class="nav-link py-1 px-3 rounded-pill {filter === 'completed' ? 'active shadow-sm bg-success' : 'text-muted'}" onclick={() => filter = 'completed'}>Completed</button>
@@ -394,7 +394,7 @@
                                                     <input type="time" class="form-control" bind:value={editTime} required />
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-end gap-2">
+                                            <div class="d-flex justify-content-end gap-2 edit-actions">
                                                 <button type="button" class="btn btn-light btn-sm text-muted rounded-pill px-3" onclick={cancelEditing}>Cancel</button>
                                                 <button type="submit" class="btn btn-success btn-sm px-4 rounded-pill fw-bold"><i class="bi bi-check-lg me-1"></i> Save Changes</button>
                                             </div>
@@ -476,7 +476,7 @@
                             <form onsubmit={(e) => { e.preventDefault(); handleUpdateUsername(); }}>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold text-muted">Username</label>
-                                    <div class="input-group">
+                                    <div class="input-group mobile-input-group">
                                         <input type="text" class="form-control bg-light" bind:value={profileUsername} required />
                                         <button class="btn btn-outline-primary fw-bold px-4" type="submit" disabled={profileUsername === userProfile.username}>Update</button>
                                     </div>
@@ -493,7 +493,7 @@
                             <form onsubmit={(e) => { e.preventDefault(); handleRequestEmailUpdate(); }}>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold text-muted">Current Email</label>
-                                    <div class="input-group">
+                                    <div class="input-group mobile-input-group">
                                         <input type="email" class="form-control bg-light" bind:value={profileEmail} required />
                                         <button class="btn btn-outline-primary fw-bold px-4" type="submit" disabled={profileEmail === userProfile.email || isOauthUser}>
                                             Request Change
@@ -511,7 +511,7 @@
                             {#if isWaitingForEmailCode || userProfile.pending_email}
                                 <div class="bg-primary bg-opacity-10 p-3 rounded-3 mt-3 border border-primary border-opacity-25" transition:slide>
                                     <label class="form-label small fw-bold text-primary">Verification Code (Sent to {userProfile.pending_email || profileEmail})</label>
-                                    <form class="d-flex gap-2" onsubmit={(e) => { e.preventDefault(); handleVerifyEmailUpdate(); }}>
+                                    <form class="d-flex gap-2 mobile-inline-form" onsubmit={(e) => { e.preventDefault(); handleVerifyEmailUpdate(); }}>
                                         <input type="text" class="form-control bg-white" bind:value={emailVerificationCode} placeholder="Enter 6-digit code" required />
                                         <button class="btn btn-primary fw-bold px-4" type="submit">Verify</button>
                                     </form>
@@ -567,7 +567,7 @@
                                     <label class="form-label small fw-bold text-muted">
                                         {hasPassword ? 'Confirm with Password' : 'Confirm Deletion'}
                                     </label>
-                                    <div class="input-group">
+                                    <div class="input-group mobile-input-group">
                                         <input
                                             type="password"
                                             class="form-control bg-light"
@@ -584,7 +584,7 @@
                             {#if isWaitingForDeleteCode}
                                 <div class="bg-danger bg-opacity-10 p-3 rounded-3 border border-danger border-opacity-25" transition:slide>
                                     <label class="form-label small fw-bold text-danger">Deletion Verification Code</label>
-                                    <form class="d-flex gap-2" onsubmit={(e) => { e.preventDefault(); handleConfirmDeleteUser(); }}>
+                                    <form class="d-flex gap-2 mobile-inline-form" onsubmit={(e) => { e.preventDefault(); handleConfirmDeleteUser(); }}>
                                         <input type="text" class="form-control bg-white" bind:value={deleteVerificationCode} placeholder="Enter 6-digit code" required />
                                         <button class="btn btn-danger fw-bold px-4" type="submit">Delete Account</button>
                                     </form>
@@ -605,5 +605,71 @@
     }
     .border-dashed {
         border: 2px dashed #e2e8f0 !important;
+    }
+
+    @media (max-width: 575.98px) {
+        .dashboard-navbar .container {
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .dashboard-nav-actions {
+            width: 100%;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-nav-actions .btn {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .task-filter {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.35rem;
+            border-radius: 0.75rem !important;
+        }
+
+        .task-filter .nav-link {
+            text-align: center;
+            padding-left: 0.4rem !important;
+            padding-right: 0.4rem !important;
+            font-size: 0.8rem;
+        }
+
+        .mobile-input-group {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mobile-input-group > .form-control {
+            width: 100%;
+            border-radius: 0.75rem !important;
+            border-left: 1px solid #e2e8f0 !important;
+        }
+
+        .mobile-input-group > .btn {
+            width: 100%;
+            border-radius: 0.75rem !important;
+        }
+
+        .mobile-inline-form {
+            flex-direction: column;
+        }
+
+        .mobile-inline-form .btn {
+            width: 100%;
+        }
+
+        .edit-actions {
+            justify-content: stretch !important;
+            flex-direction: column;
+        }
+
+        .edit-actions .btn {
+            width: 100%;
+        }
     }
 </style>

@@ -30,9 +30,9 @@
     }
 </script>
 
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+<div class="container auth-container">
+    <div class="row justify-content-center align-items-center auth-page">
+        <div class="col-12 col-sm-9 col-md-7 col-lg-5 col-xl-4 auth-col">
             <div class="card auth-card shadow">
                 <div class="auth-header position-relative">
                     <button class="btn btn-link text-white position-absolute top-0 end-0 m-3 p-0 fs-5 border-0" onclick={toggleTheme} title="Toggle Theme">
@@ -80,5 +80,11 @@
 <style>
     .letter-spacing-2 {
         letter-spacing: 0.5em;
+    }
+
+    @media (max-width: 575.98px) {
+        .letter-spacing-2 {
+            letter-spacing: 0.25em;
+        }
     }
 </style>

@@ -88,9 +88,9 @@
     }
 </script>
 
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+<div class="container auth-container">
+    <div class="row justify-content-center align-items-center auth-page">
+        <div class="col-12 col-sm-9 col-md-7 col-lg-5 col-xl-4 auth-col">
             <div class="card auth-card shadow">
                 <div class="auth-header position-relative">
                     <button class="btn btn-link text-white position-absolute top-0 end-0 m-3 p-0 fs-5 border-0" onclick={toggleTheme} title="Toggle Theme">
@@ -149,7 +149,7 @@
                         <hr class="flex-grow-1 text-muted opacity-25" />
                     </div>
 
-                    <div id="googleSignUpDiv" class="d-flex justify-content-center mb-3"></div>
+                    <div id="googleSignUpDiv" class="d-flex justify-content-center mb-3 w-100"></div>
 
                     <div class="mt-4 text-center">
                         <p class="text-muted small mb-0">Already have an account?</p>
