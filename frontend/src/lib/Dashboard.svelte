@@ -610,25 +610,34 @@
     @media (max-width: 575.98px) {
         .dashboard-navbar .container {
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             align-items: center;
             gap: 0.5rem;
         }
 
+        .dashboard-navbar .navbar-brand {
+            min-width: 0;
+            flex: 0 1 auto;
+        }
+
         .dashboard-nav-actions {
-            width: auto;
+            width: 100%;
             margin-left: auto;
             justify-content: flex-end;
             flex-wrap: nowrap;
+            min-width: 0;
             overflow-x: auto;
             scrollbar-width: none;
+            padding-bottom: 0.1rem;
         }
 
         .dashboard-nav-actions::-webkit-scrollbar { display: none; }
 
         .dashboard-nav-actions .btn {
+            flex: 0 0 auto;
             padding-left: 0.75rem;
             padding-right: 0.75rem;
+            font-size: 0.82rem;
         }
 
         .task-filter {
@@ -661,6 +670,9 @@
         .mobile-input-group > .btn {
             width: auto;
             white-space: nowrap;
+            font-size: 0.82rem;
+            padding-left: 0.7rem;
+            padding-right: 0.7rem;
         }
 
         .mobile-inline-form {
@@ -675,12 +687,19 @@
         .mobile-inline-form .btn {
             width: auto;
             white-space: nowrap;
+            font-size: 0.82rem;
+            padding-left: 0.7rem;
+            padding-right: 0.7rem;
         }
 
         .edit-actions {
             justify-content: flex-end !important;
             flex-direction: row;
             flex-wrap: wrap;
+        }
+
+        .dashboard-shell {
+            overflow-x: hidden;
         }
     }
 </style>
